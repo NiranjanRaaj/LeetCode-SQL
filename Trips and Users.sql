@@ -152,3 +152,28 @@ select t.request_at as 'Day', isnull(cast(c.canl_req/t.total_req as decimal(5,2)
 left join cancelled_request c
 on t.request_at = c.request_at
 where t.request_at between '2013-10-01' and '2013-10-03'
+
+
+/* optimal code below */
+
+with request as
+(
+    select  t.id,
+            t.request_at, 
+            iif(t.status <> 'Completed', 1, 0 ) as canl_req 
+    from trips t
+    inner join users c
+    on c.users_id = t.client_id and c.banned = 'No'
+    inner join users d
+    on d.users_id = t.driver_id and d.banned = 'No'
+    where t.request_at between '2013-10-01' and '2013-10-03'
+
+)
+
+select  t.request_at as 'Day', 
+        round(cast(sum(canl_req) as decimal (5,2)) / cast(count(t.id) as decimal (5,2)), 2)  as 'Cancellation Rate' 
+
+from request t
+group by t.request_at
+
+
