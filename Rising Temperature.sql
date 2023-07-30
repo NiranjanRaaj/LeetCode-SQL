@@ -64,3 +64,9 @@ select  id,
  from weather
 ) t
 where temp_flag  = 'greater'
+
+/* Using Joining*/
+select w.Id
+from weather w
+join weather wp
+on datediff(day, wp.recorddate, w.recorddate) = 1 and w.temperature > wp.temperature
